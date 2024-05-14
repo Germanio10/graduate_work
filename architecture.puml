@@ -1,0 +1,30 @@
+@startuml
+
+actor Front
+participant VoiceAPI
+participant VoiceRecognition
+participant LLM
+participant AsyncAPI
+
+autonumber
+Front -> VoiceAPI: Запрос с помощью голоса
+activate VoiceAPI
+
+VoiceAPI -> VoiceRecognition: Запрос на распознавание текста
+activate VoiceRecognition
+VoiceRecognition -> VoiceAPI: Распознанный текст
+deactivate
+VoiceAPI -> LLM: Определяем что будем искать
+VoiceAPI -> VoiceAPI: Создание запроса
+VoiceAPI -> AsyncAPI: Отправка запроса в сервис с фильмами
+activate AsyncAPI
+AsyncAPI -> VoiceAPI: Получение ответа с данными
+deactivate
+VoiceAPI -> VoiceRecognition: Запрос на преобразовние текста в голос
+activate VoiceRecognition
+VoiceRecognition -> VoiceAPI: Ответ голосом
+deactivate
+VoiceAPI -> Front
+deactivate
+@enduml
+
