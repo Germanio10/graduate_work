@@ -1,4 +1,4 @@
-#!/home/gera/team8/graduate_work/venv/bin/python3.10
+#!/home/gera/team8/graduate_work/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
