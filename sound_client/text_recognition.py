@@ -11,7 +11,7 @@ class TextRecognizer:
         self.synthesizeAudio = SpeechSynthesis(self.session)
 
     def play_audio(self, audio_data, num_channels=1,
-                                    sample_rate=16000, chunk_size=4000) -> None:
+                   sample_rate=16000, chunk_size=4000) -> None:
         p = pyaudio.PyAudio()
         stream = p.open(
             format=pyaudio.paInt16,
@@ -42,5 +42,5 @@ if __name__ == '__main__':
     catalog_id = "b1gekg59n7gjq361p41n"
     text_recognizer = TextRecognizer(oauth_token, catalog_id)
 
-    data = text_recognizer.generate_audio_data('Привет. Сегодня показывают фильм: Железный человек')
+    data = text_recognizer.generate_audio_data('Человека паука, человека паука может победить только - человек тапок')
     voice = text_recognizer.play_audio(audio_data=data, sample_rate=16000)
