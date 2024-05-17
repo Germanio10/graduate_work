@@ -44,15 +44,4 @@ class VoiceRecognizer:
 
     def audio_to_text(self, audio, sample):
         text_result = self.recognizeShortAudio.recognize(audio, format='lpcm', sampleRateHertz=sample)
-        print(text_result)
-
-
-if __name__ == '__main__':
-    token = "y0_AgAAAABWZr5bAATuwQAAAAEE7C63AADp34-29IdKm4D1jSYn0H0PRqICYQ"
-    catalog = "b1gekg59n7gjq361p41n"
-    sample_rate = 16000
-    voice_recognizer = VoiceRecognizer(token, catalog)
-
-    data = voice_recognizer.record_audio(3, sample_rate)
-    text = voice_recognizer.audio_to_text(data, sample_rate)
-
+        return text_result

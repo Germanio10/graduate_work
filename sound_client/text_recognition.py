@@ -35,12 +35,3 @@ class TextRecognizer:
                                                             format='lpcm',
                                                             sampleRateHertz=sample_rate)
         return audio_data
-
-
-if __name__ == '__main__':
-    oauth_token = "y0_AgAAAABWZr5bAATuwQAAAAEE7C63AADp34-29IdKm4D1jSYn0H0PRqICYQ"
-    catalog_id = "b1gekg59n7gjq361p41n"
-    text_recognizer = TextRecognizer(oauth_token, catalog_id)
-
-    data = text_recognizer.generate_audio_data('Человека паука, человека паука может победить только - человек тапок')
-    voice = text_recognizer.play_audio(audio_data=data, sample_rate=16000)
