@@ -1,11 +1,18 @@
+import json
 from pathlib import Path
 
 import spacy
 from spacy.tokens import DocBin
 
 
+def read_data(path):
+    with open(path) as f:
+        text = f.read()
+    return json.loads(text)
+
+
 def prepare_train_data(text, patterns):
-    nlp = spacy.load("ru_core_news_sm")
+    nlp = spacy.load("ru_core_news_md")
 
     corpus = []
 
@@ -48,27 +55,18 @@ def convert(lang: str, train_data, output_path: Path):
 
 
 if __name__ == '__main__':
-    text_train = "Кто сыграл главную роль в фильме волк с Уолл-стрит? Кто является режиссёром фильма интерстеллар? Кто сыграл главную роль в фильме железная леди? Кто снялся в серии фильмов гарри поттер? Кто является режиссёром фильма список шиндлера? Кто сыграл главную роль в фильме белла и бестия? Кто является режиссёром фильма убить билла? Кто снялся в фильме железный человек? Кто рейтинг у фильма железный человек?"
-    patterns_train = [
-        {"label": "MOVIE", "pattern": "волк с уолл-стрит"},
-        {"label": "MOVIE", "pattern": "интерстеллар"},
-        {"label": "MOVIE", "pattern": "железная леди"},
-        {"label": "MOVIE", "pattern": "гарри поттер"},
-        {"label": "MOVIE", "pattern": "список Шиндлера"},
-        {"label": "MOVIE", "pattern": "убить билла"},
-        {"label": "MOVIE", "pattern": "железный человек"},
-    ]
 
-    valid_train = "Что за актер был в фильме армагедон? Кто рейтинг у фильма крестный отец? Кто сыграл главную роль в фильме армагедон? Кто снялся в серии фильмов терминатор? Кто является режиссёром фильма исчезнувшая? Кто сыграл главную роль в фильме крестный отец? Кто является режиссёром фильма красотка? Кто снялся в фильме красотка?"
-    patterns_valid = [
-        {"label": "MOVIE", "pattern": "армагедон"},
-        {"label": "MOVIE", "pattern": "крестный отец"},
-        {"label": "MOVIE", "pattern": "терминатор"},
-        {"label": "MOVIE", "pattern": "красотка"},
-    ]
+    full_data = read_data('train.json')
 
+    text_train = full_data['train']['text']
+    patterns_train = full_data['train']['patterns']
+    text_valid = full_data['valid']['text']
+    patterns_valid = full_data['valid']['patterns']
     train_data = prepare_train_data(text_train, patterns_train)
-    valid_data = prepare_train_data(text_train, patterns_train)
+    valid_data = prepare_train_data(text_valid, patterns_valid)
+
+    # for i in train_data:
+    #     print(i)
 
     convert("ru", train_data, "data/train.spacy")
     convert("ru", valid_data, "data/valid.spacy")

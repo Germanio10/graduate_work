@@ -12,7 +12,7 @@ WORKDIR $APP_HOME
 
 ARG GID=1000
 ARG UID=1000
-ARG USER=ugc_api
+ARG USER=user_api
 RUN addgroup -g $GID -S $USER  \
     && adduser -S $USER -G $USER --disabled-password --uid "$UID"
 

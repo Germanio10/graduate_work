@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 import aiohttp
 import uvicorn
 from api.v1 import assistant
+from core.config import settings
 from db import api_client, redis
 from fastapi import FastAPI
 from redis.asyncio import Redis
-from core.config import settings
 
 
 @asynccontextmanager

@@ -10,10 +10,11 @@ class RemoteRepository(AbstractRepository):
     def __init__(self, api_client: ApiClient) -> None:
         self.api_client = api_client
 
-    async def search_film(self, title, **kwargs) -> MainFilmInformation:
+    async def search_film(self, title, **kwargs) -> MainFilmInformation | None:
         response = await self.api_client.get(path='films/search', search=title)
+        if not film:
+            return None
         film = response['results'][0]
-        print(film)
 
         return MainFilmInformation(**film)
 

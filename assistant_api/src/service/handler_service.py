@@ -7,26 +7,57 @@ from db.remote_repository import get_remote_repository
 from fastapi import Depends
 from models.film import MainFilmInformation
 from models.user_question import UserQuestion
+from nlp.classification.question_classificator import get_question_classificator
+from nlp.ner.trained_nlp import get_trained_nlp
 
 
 class HandlerService:
     def __init__(self, db: AbstractRepository, cache: AbstractCacheRepository) -> None:
         self._db = db
         self._cache = cache
+        self._trained_nlp = get_trained_nlp()
+        self._question_classificator = get_question_classificator()
 
     async def execute(self, question: UserQuestion) -> str:
-        await self._cache.set('dfdf', 'dsdsds')
-        if 'movie' in question.text:
-            title = question.text.split()[-1]
-            film: MainFilmInformation = await self._db.search_film(title=title)
-            if 'rating' in question.text:
-                raiting = film.imdb_rating
-                return f'Рейтинг фильма {title} {raiting}'
-            if 'genre' in question.text:
-                genre_names = ''.join([genre.name for genre in film.genre])
-                return f'Жанры фильма {title} {genre_names}'
-        else:
-            return 'Ничего не найдено'
+        context = await self._get_context(question.text)
+        if not context:
+            return 'Извините но не хватает контекста'
+        tag = self._question_classificator.execute(question.text)
+
+        if not tag:
+            return 'Извините но мы можем подскзать только о нашей коллеции фильмов'
+
+        type_, search_param = context
+
+        if type_ == 'MOVIE':
+            film: MainFilmInformation = await self._db.search_film(title=search_param)
+
+            if not film:
+                return 'Извините но такого фильма у нас нет'
+
+            match tag:
+                case 'rating':
+                    raiting = film.imdb_rating
+                    return f'рейтинг фильма {search_param} {raiting}'
+                case 'genres':
+                    genre_names = ''.join([genre.name for genre in film.genre])
+                    return f'жанры фильма {search_param} {genre_names}'
+                case _:
+                    return f'рейтинг фильма {search_param} {raiting}'
+
+        return 'Ничего не найдено'
+
+    async def _get_context(self, text: str, user_id: int = '245') -> tuple[str, str] | None:
+        doc = self._trained_nlp(text)
+        if not doc.ents:
+            result = await self._cache.get(user_id)
+            if not result:
+                return None
+        label, text = doc.ents[0].label_, doc.ents[0].text
+
+        await self._cache.set(user_id, f'{label}:{text}')
+
+        return label, text
 
 
 @lru_cache
