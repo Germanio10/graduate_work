@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from core.config import CACHE_EXPIRE_IN_SECONDS
 from db.abstract_cache_repository import AbstractCacheRepository
 from db.redis import get_redis
 from fastapi import Depends
@@ -15,7 +16,7 @@ class RedisCacheRepository(AbstractCacheRepository):
         return data
 
     async def set(self, key: str, value: str):
-        await self._redis.set(key, value)
+        await self._redis.set(key, value, CACHE_EXPIRE_IN_SECONDS)
 
 
 @lru_cache()

@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+import spacy
 from db.abstract_cache_repository import AbstractCacheRepository
 from db.abstract_repository import AbstractRepository
 from db.redis_cache import get_cache_repository
@@ -7,23 +8,26 @@ from db.remote_repository import get_remote_repository
 from fastapi import Depends
 from models.film import MainFilmInformation
 from models.user_question import UserQuestion
-from nlp.classification.question_classificator import get_question_classificator
-from nlp.ner.trained_nlp import get_trained_nlp
+from utils.classificator.question_classificator import get_question_classificator
 
 
 class HandlerService:
     def __init__(self, db: AbstractRepository, cache: AbstractCacheRepository) -> None:
         self._db = db
         self._cache = cache
-        self._trained_nlp = get_trained_nlp()
-        self._question_classificator = get_question_classificator()
+        self._ner = spacy.load('nlp_models/model-best')
+        self._question_classificator = get_question_classificator(
+            'nlp_models/classificator.pth',
+            'nlp_models/intents.json',
+        )
 
     async def execute(self, question: UserQuestion) -> str:
         context = await self._get_context(question.text)
+        print(f'{context=}')
         if not context:
             return 'Извините но не хватает контекста'
-        tag = self._question_classificator.execute(question.text)
-
+        tag = self._question_classificator.classify_question(question.text)
+        print(f'{tag=}')
         if not tag:
             return 'Извините но мы можем подскзать только о нашей коллеции фильмов'
 
@@ -48,14 +52,18 @@ class HandlerService:
         return 'Ничего не найдено'
 
     async def _get_context(self, text: str, user_id: int = '245') -> tuple[str, str] | None:
-        doc = self._trained_nlp(text)
+        doc = self._ner(text)
         if not doc.ents:
             result = await self._cache.get(user_id)
             if not result:
                 return None
+
         label, text = doc.ents[0].label_, doc.ents[0].text
 
-        await self._cache.set(user_id, f'{label}:{text}')
+        await self._cache.set(
+            user_id,
+            f'{label}:{text}',
+        )
 
         return label, text
 

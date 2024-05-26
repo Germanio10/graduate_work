@@ -12,7 +12,7 @@ class RemoteRepository(AbstractRepository):
 
     async def search_film(self, title, **kwargs) -> MainFilmInformation | None:
         response = await self.api_client.get(path='films/search', search=title)
-        if not film:
+        if not response['results']:
             return None
         film = response['results'][0]
 

@@ -1,16 +1,18 @@
-from pydantic import BaseModel, Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
+from pydantic_settings import BaseSettings
+
+CACHE_EXPIRE_IN_SECONDS = 30
 
 
 class RedisSettings(BaseSettings):
-    host: str = Field(validation_alias='REDIT_HOST', default='assistant-redis')
+    host: str = Field(validation_alias='REDIT_HOST', default='127.0.0.1')
     port: int = Field(validation_alias='REDIS_PORT', default=6379)
 
 
 class Settings(BaseSettings):
     project_name: str = Field(validation_alias='PROJECT_NAME', default='assistent')
     films_api_base_url: str = Field(
-        validation_alias='PROJECT_NAME', default='http://auth_nginx:81/api/v1/'
+        validation_alias='PROJECT_NAME', default='http://127.0.0.1:81/api/v1/'
     )
     redis_settings: RedisSettings = RedisSettings()
 

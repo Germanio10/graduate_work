@@ -15,6 +15,7 @@ def main():
 
     voice_data = voice_recognizer.record_audio(3, SAMPLE_RATE)
     text = voice_recognizer.audio_to_text(voice_data, SAMPLE_RATE)
+    print(f'{text=}')
     translated_text = translator.translate(text).lower()
     response = requests.post(
         'http://127.0.0.1:8000/api/v1/assistant/', json={'text': translated_text}
