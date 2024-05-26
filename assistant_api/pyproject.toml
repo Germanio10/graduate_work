@@ -21,6 +21,7 @@ pytest = "^8.2.1"
 spacy = "^3.7.4"
 fastapi = "0.110.0"
 nltk = "^3.8.1"
+elasticsearch = {version = "7.9.1", extras = ["async"]}
 
 
 [build-system]

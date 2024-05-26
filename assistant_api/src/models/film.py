@@ -6,4 +6,4 @@ class MainFilmInformation(BaseModel):
     id: str
     title: str
     imdb_rating: float | None
-    genre: list[Genre] | None
+    genre: list[str] | None

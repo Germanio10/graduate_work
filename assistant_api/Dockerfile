@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     LANG=C.UTF-8 \
-    APP_HOME=/src/api
+    APP_HOME=/src/api \
+    NLTK_DATA=/usr/local/share/nltk_data
 
 WORKDIR $APP_HOME
 
@@ -33,7 +34,9 @@ RUN poetry export -f requirements.txt --output requirements.txt
 RUN pip install -r requirements.txt --no-cache-dir
 RUN pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --index https://download.pytorch.org/whl/cpu
 
+
 COPY --chown=$USER:$USER ./src $APP_HOME
+RUN python -m nltk.downloader punkt -d $APP_HOME
 
 USER $USER
 

@@ -4,19 +4,21 @@ import aiohttp
 import uvicorn
 from api.v1 import assistant
 from core.config import settings
-from db import api_client, redis
+from db import api_client, elastic, redis
+from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    api_client.session = aiohttp.ClientSession()
     redis.redis = Redis(host=settings.redis_settings.host, port=settings.redis_settings.port)
+    elastic.es = AsyncElasticsearch(hosts=settings.elasticsearch.url())
 
     yield
 
-    await api_client.session.close()
+    await redis.redis.close()
+    await elastic.es.close()
 
 
 app = FastAPI(

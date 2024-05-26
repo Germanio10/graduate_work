@@ -1,7 +1,7 @@
-import sys
 import logging
+import sys
 
-logger = logging.getLogger("event_api")
+logger = logging.getLogger("assistant_api")
 logger.setLevel(logging.INFO)
 
 sh = logging.StreamHandler(sys.stdout)

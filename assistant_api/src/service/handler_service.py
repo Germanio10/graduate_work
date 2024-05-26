@@ -3,6 +3,7 @@ from functools import lru_cache
 import spacy
 from db.abstract_cache_repository import AbstractCacheRepository
 from db.abstract_repository import AbstractRepository
+from db.elastic_repository import get_db_repository
 from db.redis_cache import get_cache_repository
 from db.remote_repository import get_remote_repository
 from fastapi import Depends
@@ -44,7 +45,7 @@ class HandlerService:
                     raiting = film.imdb_rating
                     return f'рейтинг фильма {search_param} {raiting}'
                 case 'genres':
-                    genre_names = ''.join([genre.name for genre in film.genre])
+                    genre_names = ' '.join(film.genre)
                     return f'жанры фильма {search_param} {genre_names}'
                 case _:
                     return f'рейтинг фильма {search_param} {raiting}'
@@ -70,7 +71,7 @@ class HandlerService:
 
 @lru_cache
 def get_handler_service(
-    db: AbstractRepository = Depends(get_remote_repository),
+    db: AbstractRepository = Depends(get_db_repository),
     cache: AbstractCacheRepository = Depends(get_cache_repository),
 ) -> HandlerService:
     return HandlerService(db=db, cache=cache)

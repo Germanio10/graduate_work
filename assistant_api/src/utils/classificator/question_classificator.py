@@ -38,7 +38,6 @@ class QuestionClassificator:
         self.all_words = data['all_words']
         self.tags = data['tags']
         model_state = data["model_state"]
-        print('!!!!!!!!!!!!!!')
 
         self.model = NeuralNet(input_size, hidden_size, output_size).to(self.device)
         self.model.load_state_dict(model_state)
@@ -51,7 +50,6 @@ class QuestionClassificator:
         output = self.model(X)
         _, predicted = torch.max(output, dim=1)
         tag = self.tags[predicted.item()]
-        print(tag)
         probs = torch.softmax(output, dim=1)
         prob = probs[0][predicted.item()]
         if prob.item() > 0.85:
