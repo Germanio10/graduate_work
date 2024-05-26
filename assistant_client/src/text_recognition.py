@@ -11,7 +11,7 @@ class TextRecognizer:
         self.synthesizeAudio = SpeechSynthesis(self.session)
 
     def play_audio(self, audio_data, num_channels=1,
-                   sample_rate=16000, chunk_size=4000) -> None:
+                   sample_rate=16000, chunk_size=2000) -> None:
         p = pyaudio.PyAudio()
         stream = p.open(
             format=pyaudio.paInt16,
