@@ -47,10 +47,34 @@ class HandlerService:
                 case 'genres':
                     genre_names = ' '.join(film.genre)
                     return f'жанры фильма {search_param} {genre_names}'
+                case 'director':
+                    director_names = ' '.join(film.directors_names)
+                    return f'режиссер фильма {search_param} {director_names}'
                 case _:
-                    return f'рейтинг фильма {search_param} {raiting}'
-
+                    actor_films = await self._db.films_by_actor(actor_name=search_param)
+                    return f'{search_param} снимался в фильмах: {actor_films}'
+                
+        elif type_ == '':
+                match 'tag':
+                    case 'actor':
+                        actor_films = await self._db.films_by_actor(actor_name=search_param)
+                        return f'Актер {search_param} снимался в фильмах: {", ".join(actor_films)}'
+        elif type_ == '':
+                match 'tag':
+                    case 'director':
+                        count, films = await self._db.films_amount(director_name=search_param)
+                        count_text = self.get_film_count_text(count)
+                        return f'{search_param} снял {count_text}: {", ".join(films)}'
         return 'Ничего не найдено'
+    
+    @staticmethod
+    def get_film_count_text(count: int) -> str:
+        if count % 10 == 1 and count % 100 != 11:
+            return f"{count} фильм"
+        elif 2 <= count % 10 <= 4 and (count % 100 < 10 or count % 100 >= 20):
+            return f"{count} фильма"
+        else:
+            return f"{count} фильмов"
 
     async def _get_context(self, text: str, user_id: int = '245') -> tuple[str, str] | None:
         doc = self._ner(text)

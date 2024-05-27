@@ -24,6 +24,34 @@ class ElasticRepository(AbstractRepository):
         except NotFoundError:
             return None
 
+    async def films_by_actor(self, actor_name) -> list[str] | None:
+        body = {
+            "query": {"multi_match": {"query": actor_name, "fields": ["actors_names"]}},
+            "size": 1000,
+            "_source": ["title"]
+        }
+        try:
+            doc = await self._elastic.search(index='movies', body=body)
+            film_titles = [hit['_source']['title'] for hit in doc['hits']['hits']]
+            return film_titles
+        except NotFoundError:
+            return None
+    
+    async def films_amount(self, director_name) -> tuple[int, list[str]] | None:
+        body = {
+            "query": {"multi_match": {"query": director_name, "fields": ["directors_names"]}},
+            "size": 1000,
+            "_source": ["title"]
+        }
+        try:
+            doc = await self._elastic.search(index='movies', body=body)
+            film_titles = [hit['_source']['title'] for hit in doc['hits']['hits']]
+            count = len(film_titles)
+            return count, film_titles
+        except NotFoundError:
+            return None
+
+
 
 @lru_cache()
 def get_db_repository(
