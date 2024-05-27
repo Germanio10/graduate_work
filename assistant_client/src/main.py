@@ -18,13 +18,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Голосовой ассистент")
         self.setGeometry(300, 300, 400, 300)
 
-        # Set the font for the labels
         font = QFont("Arial", 12)
 
-        # Main layout
         main_layout = QVBoxLayout()
 
-        # Button
         self.button = QPushButton("Задайте вопрос")
         self.button.setFont(font)
         self.button.clicked.connect(self.process_voice)
@@ -41,7 +38,6 @@ class MainWindow(QMainWindow):
         """)
         main_layout.addWidget(self.button, alignment=Qt.AlignCenter)
 
-        # Request label
         self.request_label = QLabel("Вопрос: ")
         self.request_label.setFont(font)
         self.request_label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
@@ -49,7 +45,6 @@ class MainWindow(QMainWindow):
         self.request_label.setStyleSheet("padding: 10px; background-color: #f0f0f0;")
         main_layout.addWidget(self.request_label)
 
-        # Response label
         self.response_label = QLabel("Ответ: ")
         self.response_label.setFont(font)
         self.response_label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
@@ -63,7 +58,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
 
     def process_voice(self):
-        # Clear the labels before starting the voice recognition process
         self.request_label.setText("Вопрос: ")
         self.response_label.setText("Ответ: ")
 
