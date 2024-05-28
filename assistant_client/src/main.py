@@ -1,6 +1,6 @@
 import sys
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QFrame
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QFrame
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from text_recognition import TextRecognizer
@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
         self.request_label.setText(f"Вопрос: {text}")
 
         response = requests.post(
-            'http://127.0.0.1:8000/api/v1/assistant/',
+            settings.yandex_settings.project_url,
             json={'text': text}
         )
         search_service_answer = response.json().get('answer')
