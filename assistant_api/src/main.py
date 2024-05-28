@@ -1,10 +1,9 @@
 from contextlib import asynccontextmanager
 
-import aiohttp
 import uvicorn
 from api.v1 import assistant
 from core.config import settings
-from db import api_client, elastic, redis
+from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from redis.asyncio import Redis

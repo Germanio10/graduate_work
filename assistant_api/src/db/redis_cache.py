@@ -11,9 +11,11 @@ class RedisCacheRepository(AbstractCacheRepository):
     def __init__(self, redis: Redis):
         self._redis = redis
 
-    async def get(self, key: str):
+    async def get(self, key: str) -> str | None:
         data = await self._redis.get(key)
-        return data
+        if not data:
+            return None
+        return data.decode('utf-8')
 
     async def set(self, key: str, value: str):
         await self._redis.set(key, value, CACHE_EXPIRE_IN_SECONDS)

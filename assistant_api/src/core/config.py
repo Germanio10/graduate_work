@@ -1,3 +1,5 @@
+import logging
+
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
@@ -24,6 +26,7 @@ class Settings(BaseSettings):
     )
     redis_settings: RedisSettings = RedisSettings()
     elasticsearch: ElasticsearchSettings = ElasticsearchSettings()
+    log_level: int | str = Field(validation_alias='LOG_LEVEL', default=logging.INFO)
 
 
 settings = Settings()

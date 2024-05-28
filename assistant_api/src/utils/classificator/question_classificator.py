@@ -1,9 +1,12 @@
 import json
+import random
 from functools import lru_cache
 
 import torch
 import torch.nn as nn
 from utils.classificator.nltk_utils import bag_of_words, tokenize
+
+MATCH_PERCENT = 0.85
 
 
 class NeuralNet(nn.Module):
@@ -43,7 +46,7 @@ class QuestionClassificator:
         self.model.load_state_dict(model_state)
         self.model.eval()
 
-    def classify_question(self, question):
+    def classify_question(self, question) -> tuple[str, str] | None:
         question = tokenize(question)
         X = bag_of_words(question, self.all_words)
         X = torch.tensor(X, dtype=torch.float32).reshape(1, -1).to(self.device)
@@ -52,10 +55,11 @@ class QuestionClassificator:
         tag = self.tags[predicted.item()]
         probs = torch.softmax(output, dim=1)
         prob = probs[0][predicted.item()]
-        if prob.item() > 0.85:
+        if prob.item() > MATCH_PERCENT:
             for intent in self.intents['intents']:
                 if tag == intent['tag']:
-                    return tag
+                    return tag, random.choice(intent['responses'])
+
         return None
 
 

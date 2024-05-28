@@ -18,17 +18,16 @@ class ElasticRepository(AbstractRepository):
         }
         try:
             doc = await self._elastic.search(index='movies', body=body)
-            print(doc['hits']['hits'][0]['_source'])
             answer = MainFilmInformation(**doc['hits']['hits'][0]['_source'])
             return answer
-        except NotFoundError:
+        except (NotFoundError, IndexError):
             return None
 
     async def films_by_actor(self, actor_name) -> list[str] | None:
         body = {
             "query": {"multi_match": {"query": actor_name, "fields": ["actors_names"]}},
             "size": 1000,
-            "_source": ["title"]
+            "_source": ["title"],
         }
         try:
             doc = await self._elastic.search(index='movies', body=body)
@@ -36,12 +35,12 @@ class ElasticRepository(AbstractRepository):
             return film_titles
         except NotFoundError:
             return None
-    
+
     async def films_amount(self, director_name) -> tuple[int, list[str]] | None:
         body = {
             "query": {"multi_match": {"query": director_name, "fields": ["directors_names"]}},
             "size": 1000,
-            "_source": ["title"]
+            "_source": ["title"],
         }
         try:
             doc = await self._elastic.search(index='movies', body=body)
@@ -50,7 +49,6 @@ class ElasticRepository(AbstractRepository):
             return count, film_titles
         except NotFoundError:
             return None
-
 
 
 @lru_cache()
