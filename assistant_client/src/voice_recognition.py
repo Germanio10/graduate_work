@@ -2,6 +2,9 @@ import io
 import wave
 import pyaudio
 from speechkit import Session, ShortAudioRecognition
+from speechkit.exceptions import RequestError
+from fastapi import HTTPException
+from http import HTTPStatus
 
 
 class VoiceRecognizer:
@@ -43,5 +46,8 @@ class VoiceRecognizer:
         return container
 
     def audio_to_text(self, audio, sample):
-        text_result = self.recognizeShortAudio.recognize(audio, format='lpcm', sampleRateHertz=sample)
+        try:
+            text_result = self.recognizeShortAudio.recognize(audio, format='lpcm', sampleRateHertz=sample)
+        except RequestError:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Ошибка с подлкючением к speechkit")
         return text_result
