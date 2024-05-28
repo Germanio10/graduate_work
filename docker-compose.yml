@@ -15,6 +15,20 @@ services:
     ports:
       - "8000:8000"
 
+  assistant_nginx:
+    image: nginx:latest
+    container_name: assistant_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx_config:/etc/nginx/conf.d:ro
+      - nginx_log:/var/log/nginx/
+    depends_on:
+      - assistant_api
+    ports:
+      - "84:84"
+    networks:
+      - my_network
+
   assistant-redis:
     image: redis:latest
     container_name: assistant-redis
@@ -66,6 +80,11 @@ services:
       - "9200:9200"
     networks:
       - my_network
+
+volumes:
+  nginx_log:
+
 networks:
   my_network:
     external: True
+
