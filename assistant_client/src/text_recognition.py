@@ -1,4 +1,7 @@
 from speechkit import Session, SpeechSynthesis
+from speechkit.exceptions import RequestError
+from fastapi import HTTPException
+from http import HTTPStatus
 import pyaudio
 
 
@@ -30,8 +33,11 @@ class TextRecognizer:
             p.terminate()
 
     def generate_audio_data(self, text, sample_rate=16000):
-        audio_data = self.synthesizeAudio.synthesize_stream(text=text,
-                                                            voice='oksana',
-                                                            format='lpcm',
-                                                            sampleRateHertz=sample_rate)
+        try:
+            audio_data = self.synthesizeAudio.synthesize_stream(text=text,
+                                                                voice='oksana',
+                                                                format='lpcm',
+                                                                sampleRateHertz=sample_rate)
+        except RequestError:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='Ошибка с подключением к speechkit')
         return audio_data

@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   assistant_api:
@@ -14,6 +14,20 @@ services:
         - es
     ports:
       - "8000:8000"
+
+  assistant_nginx:
+    image: nginx:latest
+    container_name: assistant_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx_config:/etc/nginx/conf.d:ro
+      - nginx_log:/var/log/nginx/
+    depends_on:
+      - assistant_api
+    ports:
+      - "84:84"
+    networks:
+      - my_network
 
   assistant-redis:
     image: redis:latest
@@ -66,7 +80,58 @@ services:
       - "9200:9200"
     networks:
       - my_network
-      
+
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - my_network
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml
+      - nginx_log:/var/log/nginx
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - my_network
+
+
+  grafana:
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy 
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+        EOF
+        /run.sh
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - my_network
+volumes:
+  nginx_log:
+
 networks:
   my_network:
     external: True
+

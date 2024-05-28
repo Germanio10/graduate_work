@@ -1,13 +1,12 @@
 import sys
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QFrame
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QFrame
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from text_recognition import TextRecognizer
 from voice_recognition import VoiceRecognizer
+from core.config import settings
 
-TOKEN = "y0_AgAAAABWZr5bAATuwQAAAAEE7C63AADp34-29IdKm4D1jSYn0H0PRqICYQ"
-CATALOG = "b1gekg59n7gjq361p41n"
 SAMPLE_RATE = 16000
 
 
@@ -61,15 +60,15 @@ class MainWindow(QMainWindow):
         self.request_label.setText("Вопрос: ")
         self.response_label.setText("Ответ: ")
 
-        voice_recognizer = VoiceRecognizer(TOKEN, CATALOG)
-        text_recognizer = TextRecognizer(TOKEN, CATALOG)
+        voice_recognizer = VoiceRecognizer(settings.yandex_settings.token, settings.yandex_settings.catalog)
+        text_recognizer = TextRecognizer(settings.yandex_settings.token, settings.yandex_settings.catalog)
 
         voice_data = voice_recognizer.record_audio(3, SAMPLE_RATE)
         text = voice_recognizer.audio_to_text(voice_data, SAMPLE_RATE)
         self.request_label.setText(f"Вопрос: {text}")
 
         response = requests.post(
-            'http://127.0.0.1:8000/api/v1/assistant/',
+            settings.yandex_settings.project_url,
             json={'text': text}
         )
         search_service_answer = response.json().get('answer')
