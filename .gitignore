@@ -11,5 +11,7 @@ poetry.lock
 *.css
 *.svg
 
+
 .pytest_cache
 .mypy_cache
+test_logs.log
