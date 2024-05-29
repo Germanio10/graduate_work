@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from api.v1 import assistant
-from core.config import settings
+from async_fastapi_jwt_auth import AuthJWT
+from core.config import JWTSettings, settings
 from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
@@ -18,6 +19,11 @@ async def lifespan(app: FastAPI):
 
     await redis.redis.close()
     await elastic.es.close()
+
+
+@AuthJWT.load_config
+def get_config():
+    return JWTSettings()
 
 
 app = FastAPI(

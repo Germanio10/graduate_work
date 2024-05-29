@@ -28,8 +28,8 @@ class HandlerService:
             INTENTS_PATH,
         )
 
-    async def execute(self, question: UserQuestion) -> str:
-        context = await self._get_context(question.text)
+    async def execute(self, question: UserQuestion, user_id: str) -> str:
+        context = await self._get_context(question.text, user_id)
         logger.debug('Context %s', context)
         if not context:
             logger.info('No content. question: %s', question.text)
@@ -99,7 +99,7 @@ class HandlerService:
         else:
             return f"{count} фильмов"
 
-    async def _get_context(self, text: str, user_id: int = '245') -> tuple[str, str] | None:
+    async def _get_context(self, text: str, user_id: str) -> tuple[str, str] | None:
         doc = self._ner(text)
         if not doc.ents:
             result: str = await self._cache.get(user_id)
