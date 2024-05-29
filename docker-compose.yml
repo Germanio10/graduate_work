@@ -9,9 +9,9 @@ services:
     networks:
       - my_network
     depends_on:
-        - assistant-redis
-        - postgres
-        - es
+      - assistant-redis
+      - postgres
+      - es
     ports:
       - "8000:8000"
 
@@ -98,7 +98,6 @@ services:
     networks:
       - my_network
 
-
   grafana:
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
@@ -128,10 +127,20 @@ services:
       - "3000:3000"
     networks:
       - my_network
+  assistant_tests:
+    build: ./tests/functional
+    container_name: assistant_tests
+    depends_on:
+      - assistant_api
+      - assistant-redis
+      - etl
+    env_file:
+      - .env
+    networks:
+      - my_network
+
 volumes:
   nginx_log:
-
 networks:
   my_network:
     external: True
-

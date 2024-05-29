@@ -1,14 +1,14 @@
 import logging
-import sys
+import logging_loki
 
-logger = logging.getLogger("event_api")
-logger.setLevel(logging.DEBUG)
-
-sh = logging.StreamHandler(sys.stdout)
-
-formatter = logging.Formatter(
-    "%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
+handler = logging_loki.LokiHandler(
+    url='http://loki:3100/loki/api/v1/push',
+    tags={"application": "assistant_api"},
 )
-sh.setFormatter(formatter)
 
-logger.addHandler(sh)
+logger = logging.getLogger('assistant')
+logger.addHandler(handler)
+logger.error(
+    "Something happend"
+)
+
