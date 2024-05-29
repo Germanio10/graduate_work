@@ -128,7 +128,7 @@ services:
     networks:
       - my_network
   assistant_tests:
-    build: ./tests/functional
+    build: assistant_api/tests/functional
     container_name: assistant_tests
     depends_on:
       - assistant_api
