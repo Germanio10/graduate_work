@@ -74,6 +74,7 @@ class HandlerService:
 
         elif type_ == ConextTypeEnum.actor:
             actor_films = await self._db.films_by_actor(actor_name=search_param)
+            actor_films = ', '.join(actor_films)
             return answer.format(
                 search_param=search_param,
                 actor_films=actor_films,
@@ -82,6 +83,7 @@ class HandlerService:
         elif type_ == ConextTypeEnum.director:
             count, films = await self._db.films_amount(director_name=search_param)
             count_text = self.get_film_count_text(count)
+            films = ', '.join(films)
             return answer.format(
                 search_param=search_param,
                 count_text=count_text,
