@@ -1,30 +1,25 @@
 @startuml
+!theme materia
 
-actor Front
-participant VoiceAPI
-participant VoiceRecognition
-participant LLM
-participant AsyncAPI
+title  АРХИТЕКТУРА ТO BE
 
-autonumber
-Front -> VoiceAPI: Запрос с помощью голоса
-activate VoiceAPI
+agent Клиент
 
-VoiceAPI -> VoiceRecognition: Запрос на распознавание текста
-activate VoiceRecognition
-VoiceRecognition -> VoiceAPI: Распознанный текст
-deactivate
-VoiceAPI -> LLM: Определяем что будем искать
-VoiceAPI -> VoiceAPI: Создание запроса
-VoiceAPI -> AsyncAPI: Отправка запроса в сервис с фильмами
-activate AsyncAPI
-AsyncAPI -> VoiceAPI: Получение ответа с данными
-deactivate
-VoiceAPI -> VoiceRecognition: Запрос на преобразовние текста в голос
-activate VoiceRecognition
-VoiceRecognition -> VoiceAPI: Ответ голосом
-deactivate
-VoiceAPI -> Front
-deactivate
+node "Assistant" as assistant {
+    component "ASSISTANT_API" as api
+    component "Custom LLM" as llm
+    database "cache" as cache
+    }
+
+component TTS
+database Elastic
+component STT
+
+Клиент --> STT: голосовой запрос
+api <--> Elastic: поисковой запрос
+api <--> cache: контекст сообщения
+api --> TTS: ответ для прочтения
+api <--> llm: анализ текста
+TTS --> Клиент
+
 @enduml
-
