@@ -12,8 +12,6 @@ services:
       - assistant-redis
       - postgres
       - es
-    ports:
-      - "8000:8000"
 
   assistant_nginx:
     image: nginx:latest
@@ -37,8 +35,6 @@ services:
       - my_network
     env_file:
       - .env
-    ports:
-      - "6379:6379"
 
   etl:
     container_name: assistant-etl
@@ -63,8 +59,6 @@ services:
       POSTGRES_DB: ${DB_NAME:-movies_database}
       POSTGRES_USER: ${DB_USER:-app}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-    ports:
-      - "5432:5432"
     networks:
       - my_network
 
@@ -76,8 +70,6 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms4096m -Xmx4096m
-    ports:
-      - "9200:9200"
     networks:
       - my_network
 
