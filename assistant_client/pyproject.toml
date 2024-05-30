@@ -10,6 +10,7 @@ python = "^3.10"
 speechkit = "^2.2.2"
 pyaudio = "^0.2.14"
 deep-translator = "^1.11.4"
+requests = "^2.32.3"
 
 [build-system]
 requires = ["poetry-core"]
