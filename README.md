@@ -1,5 +1,7 @@
 # Проектная работа: диплом
 
+# Инвайт https://github.com/Germanio10/graduate_work/invitations
+
 ## .env файл
 Для настройки переменных среды нужно скопировать пример конфигурации [.env.example](.env.example)
 ```sh
