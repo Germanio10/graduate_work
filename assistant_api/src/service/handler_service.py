@@ -43,54 +43,57 @@ class HandlerService:
         logger.debug('Tag %s', tag)
 
         type_, search_param = context
+        try:
+            if type_ == ConextTypeEnum.movie:
+                film: MainFilmInformation = await self._db.search_film(title=search_param)
 
-        if type_ == ConextTypeEnum.movie:
-            film: MainFilmInformation = await self._db.search_film(title=search_param)
+                if not film:
+                    return messages.NO_FILM_IN_BASE
+                match tag:
+                    case TagEnum.rating:
+                        raiting = film.imdb_rating
+                        return answer.format(
+                            search_param=search_param,
+                            raiting=raiting,
+                        )
+                    case TagEnum.genres:
+                        genre_names = ' '.join(film.genre)
+                        return answer.format(
+                            search_param=search_param,
+                            genre_names=genre_names,
+                        )
+                    case TagEnum.director:
+                        director_names = ' '.join(film.directors_names)
+                        return answer.format(
+                            search_param=search_param,
+                            director_names=director_names,
+                        )
+                    case _:
+                        logger.info('Nо film. question: %s', question.text)
+                        return messages.NO_INFO_FILM
 
-            if not film:
-                return messages.NO_FILM_IN_BASE
-            match tag:
-                case TagEnum.rating:
-                    raiting = film.imdb_rating
-                    return answer.format(
-                        search_param=search_param,
-                        raiting=raiting,
-                    )
-                case TagEnum.genres:
-                    genre_names = ' '.join(film.genre)
-                    return answer.format(
-                        search_param=search_param,
-                        genre_names=genre_names,
-                    )
-                case TagEnum.director:
-                    director_names = ' '.join(film.directors_names)
-                    return answer.format(
-                        search_param=search_param,
-                        director_names=director_names,
-                    )
-                case _:
-                    logger.info('Nо film. question: %s', question.text)
-                    return messages.NO_INFO_FILM
+            elif type_ == ConextTypeEnum.actor:
+                actor_films = await self._db.films_by_actor(actor_name=search_param)
+                actor_films = ', '.join(actor_films)
+                return answer.format(
+                    search_param=search_param,
+                    actor_films=actor_films,
+                )
 
-        elif type_ == ConextTypeEnum.actor:
-            actor_films = await self._db.films_by_actor(actor_name=search_param)
-            actor_films = ', '.join(actor_films)
-            return answer.format(
-                search_param=search_param,
-                actor_films=actor_films,
-            )
-
-        elif type_ == ConextTypeEnum.director:
-            count, films = await self._db.films_amount(director_name=search_param)
-            count_text = self.get_film_count_text(count)
-            films = ', '.join(films)
-            return answer.format(
-                search_param=search_param,
-                count_text=count_text,
-                films=films,
-            )
-        logger.info('Nо found. question: %s', question.text)
-        return messages.NOT_FOUND
+            elif type_ == ConextTypeEnum.director:
+                count, films = await self._db.films_amount(director_name=search_param)
+                count_text = self.get_film_count_text(count)
+                films = ', '.join(films)
+                return answer.format(
+                    search_param=search_param,
+                    count_text=count_text,
+                    films=films,
+                )
+            logger.info('Nо found. question: %s', question.text)
+            return messages.NOT_FOUND
+        except KeyError:
+            logger.info('Nо found. question: %s', question.text)
+            return messages.NOT_FOUND
 
     @staticmethod
     def get_film_count_text(count: int) -> str:
