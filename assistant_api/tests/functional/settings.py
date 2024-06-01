@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic import Field
+from pydantic import Field, BaseModel
 from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
@@ -15,6 +15,10 @@ class TestAssistantServiceSettings(BaseSettings):
 
     def url(self):
         return f'http://{self.host}:{self.port}/api/v1'
+
+
+class JWTSettings(BaseModel):
+    authjwt_secret_key: str = "secret"
 
 
 class TestSettings(BaseSettings):

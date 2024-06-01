@@ -1,4 +1,3 @@
-from models.ganre import Genre
 from pydantic import BaseModel
 
 

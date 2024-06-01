@@ -6,6 +6,9 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from models.film import MainFilmInformation
 
+DEFAULT_ANSWER_SIZE = 1000
+PERSONAL_ANSWER_SIZE = 1
+
 
 class ElasticRepository(AbstractRepository):
     def __init__(self, elastic: AsyncElasticsearch):
@@ -14,7 +17,7 @@ class ElasticRepository(AbstractRepository):
     async def search_film(self, title) -> MainFilmInformation | None:
         body = {
             "query": {"multi_match": {"query": title, "fields": ["title"]}},
-            "size": 1,
+            "size": PERSONAL_ANSWER_SIZE,
         }
         try:
             doc = await self._elastic.search(index='movies', body=body)
@@ -26,7 +29,7 @@ class ElasticRepository(AbstractRepository):
     async def films_by_actor(self, actor_name) -> list[str] | None:
         body = {
             "query": {"multi_match": {"query": actor_name, "fields": ["actors_names"]}},
-            "size": 1000,
+            "size": LOAD_SIZE,
             "_source": ["title"],
         }
         try:
@@ -39,7 +42,7 @@ class ElasticRepository(AbstractRepository):
     async def films_amount(self, director_name) -> tuple[int, list[str]] | None:
         body = {
             "query": {"multi_match": {"query": director_name, "fields": ["directors_names"]}},
-            "size": 1000,
+            "size": LOAD_SIZE,
             "_source": ["title"],
         }
         try:

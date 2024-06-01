@@ -4,6 +4,7 @@ services:
   assistant_api:
     build:
       context: ./assistant_api
+    restart: unless-stopped
     env_file:
       - .env
     networks:
@@ -14,8 +15,9 @@ services:
       - es
 
   assistant_nginx:
-    image: nginx:latest
+    image: nginx:1.26.1
     container_name: assistant_nginx
+    restart: unless-stopped
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/nginx_config:/etc/nginx/conf.d:ro
@@ -30,7 +32,7 @@ services:
   assistant-redis:
     image: redis:latest
     container_name: assistant-redis
-    restart: always
+    restart: unless-stopped
     networks:
       - my_network
     env_file:
@@ -49,7 +51,7 @@ services:
       - my_network
 
   postgres:
-    image: postgres:13
+    image: postgres:16-alpine
     container_name: assistant-postgres
     restart: unless-stopped
     volumes:
@@ -70,58 +72,15 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms4096m -Xmx4096m
-    networks:
-      - my_network
-
-  loki:
-    image: grafana/loki:2.9.2
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - my_network
-
-  promtail:
-    image: grafana/promtail:2.9.2
     volumes:
-      - ./promtail-config.yml:/etc/promtail/config.yml
-      - nginx_log:/var/log/nginx
-    command: -config.file=/etc/promtail/config.yml
+      - data:/usr/share/elasticsearch/data
     networks:
       - my_network
 
-  grafana:
-    environment:
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-    entrypoint:
-      - sh
-      - -euc
-      - |
-        mkdir -p /etc/grafana/provisioning/datasources
-        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
-        apiVersion: 1
-        datasources:
-        - name: Loki
-          type: loki
-          access: proxy 
-          orgId: 1
-          url: http://loki:3100
-          basicAuth: false
-          isDefault: true
-          version: 1
-          editable: false
-        EOF
-        /run.sh
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    networks:
-      - my_network
   assistant_tests:
     build: assistant_api/tests/functional
     container_name: assistant_tests
+    restart: unless-stopped
     depends_on:
       - assistant_api
       - assistant-redis
@@ -133,6 +92,8 @@ services:
 
 volumes:
   nginx_log:
+  data:
+
 networks:
   my_network:
     external: True

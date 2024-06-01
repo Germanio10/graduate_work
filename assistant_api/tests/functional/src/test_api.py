@@ -26,13 +26,14 @@ pytestmark = pytest.mark.asyncio
          "актер Джонни Депп снимался в фильмах: Спасти рядового Райана, В погоне за счастьем, Терминатор 2: Судный день",
          status.HTTP_201_CREATED),
         ('неизвестный фильм',
-         'Извините но мы можем подскзать только о нашей коллеции фильмов',
+         'Извините но не хватает контекста. Вы можете спросить о фильме в нашей коллекции режиссере актере',
          status.HTTP_201_CREATED)
     ]
 )
-async def test_api(make_post_request, text, answer, expected_status):
+async def test_api(make_post_request,  get_token, text, answer, expected_status):
     data = {"text": text}
-    response = await make_post_request(data=data, method='assistant/')
+    access_token = await get_token()
+    response = await make_post_request(data=data, method='assistant/', access_token=access_token)
 
     assert response['status'] == expected_status
     assert response['body'].get('answer') == answer
