@@ -1,10 +1,7 @@
 import io
 import wave
+
 import pyaudio
-from speechkit import Session, ShortAudioRecognition
-from speechkit.exceptions import RequestError
-from fastapi import HTTPException
-from http import HTTPStatus
 
 
 class Recorder:

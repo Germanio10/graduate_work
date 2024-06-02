@@ -1,7 +1,8 @@
+from http import HTTPStatus
+
+from fastapi import HTTPException
 from speechkit import Session, ShortAudioRecognition
 from speechkit.exceptions import RequestError
-from fastapi import HTTPException
-from http import HTTPStatus
 
 
 class VoiceToText:

@@ -1,16 +1,18 @@
 import sys
+from http import HTTPStatus
+
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QFrame
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
-from speechkit.exceptions import RequestError
-from text_to_speech import TextToSpeech
-from recorder import Recorder
 from audio_player import AudioPlayer
-from voice_to_text import VoiceToText
 from core.config import settings
 from fastapi import HTTPException
-from http import HTTPStatus
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QMainWindow,
+                             QPushButton, QVBoxLayout, QWidget)
+from recorder import Recorder
+from speechkit.exceptions import RequestError
+from text_to_speech import TextToSpeech
+from voice_to_text import VoiceToText
 
 SAMPLE_RATE = 16000
 

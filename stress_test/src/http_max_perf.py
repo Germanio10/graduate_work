@@ -8,7 +8,7 @@ class AssistantUser(HttpUser):
     host = cfg.api_host
 
     def on_start(self):
-        logger.debug(f"user started")
+        logger.debug("user started")
 
     @task
     def send_question(self) -> None:
@@ -20,7 +20,7 @@ class AssistantUser(HttpUser):
             assertion.check_http_response(transaction, request)
 
     def on_stop(self):
-        logger.debug(f"user stopped")
+        logger.debug("user stopped")
 
 
 class StagesShape(LoadTestShape):

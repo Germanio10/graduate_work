@@ -1,6 +1,6 @@
 from common.transform_abstract import TransformAbstract
-from elasticsearch_models import PersonElasticsearchDataRow, \
-    PersonElasticsearchDataTransform
+from elasticsearch_models import (PersonElasticsearchDataRow,
+                                  PersonElasticsearchDataTransform)
 from extract.persons import ExtractPersons
 
 

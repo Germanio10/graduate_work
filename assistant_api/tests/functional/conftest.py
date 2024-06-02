@@ -1,9 +1,10 @@
 import asyncio
 import uuid
+
 import aiohttp
 import pytest
 from async_fastapi_jwt_auth import AuthJWT
-from settings import test_settings, JWTSettings
+from settings import JWTSettings, test_settings
 
 
 @AuthJWT.load_config
@@ -50,9 +51,8 @@ def make_post_request(aiohttp_client):
 def get_token():
 
     async def inner(*args, **kwargs):
-        access_token = await AuthJWT().create_access_token(
+        return await AuthJWT().create_access_token(
             subject=str(uuid.uuid4()), user_claims={'role_id': str(uuid.uuid4())}
         )
-        return access_token
 
     return inner

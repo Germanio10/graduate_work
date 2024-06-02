@@ -24,4 +24,4 @@ class ExtractPersons(ExtractMixin):
         )
         self.pg_cursor.execute(query)
         self.data = self.pg_cursor.fetchall()
-        return None
+        return

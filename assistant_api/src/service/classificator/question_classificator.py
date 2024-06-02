@@ -46,9 +46,9 @@ class QuestionClassificator:
 
     def classify_question(self, question) -> tuple[str, str] | None:
         question = tokenize(question)
-        X = bag_of_words(question, self.all_words)
-        X = torch.tensor(X, dtype=torch.float32).reshape(1, -1).to(self.device)
-        output = self.model(X)
+        x = bag_of_words(question, self.all_words)
+        x = torch.tensor(x, dtype=torch.float32).reshape(1, -1).to(self.device)
+        output = self.model(x)
         _, predicted = torch.max(output, dim=1)
         tag = self.tags[predicted.item()]
         probs = torch.softmax(output, dim=1)
