@@ -4,9 +4,7 @@ from functools import lru_cache
 import spacy
 from core.config import CLASSIFICATOR_MODEL_PATH, INTENTS_PATH, NER_MODEL_PATH
 from service.classificator.question_classificator import (
-    QuestionClassificator,
-    get_question_classificator,
-)
+    QuestionClassificator, get_question_classificator)
 from spacy.language import Language
 
 

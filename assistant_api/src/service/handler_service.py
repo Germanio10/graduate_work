@@ -1,6 +1,7 @@
 from functools import lru_cache
 
-from core.config import NO_CONTENT, NO_FILM_IN_BASE, NO_INFO_FILM, NO_INTENTS, NOT_FOUND
+from core.config import (NO_CONTENT, NO_FILM_IN_BASE, NO_INFO_FILM, NO_INTENTS,
+                         NOT_FOUND)
 from core.logger import logger
 from db.abstract_cache_repository import AbstractCacheRepository
 from db.abstract_repository import AbstractRepository

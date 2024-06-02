@@ -2,10 +2,10 @@ from functools import lru_cache
 
 from async_fastapi_jwt_auth import AuthJWT
 from async_fastapi_jwt_auth.exceptions import JWTDecodeError, MissingTokenError
+from core.config import settings
 from fastapi import Depends, HTTPException, Request
 from models.user import User
 from starlette import status
-from core.config import settings
 
 
 class CheckAuth:
