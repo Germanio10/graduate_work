@@ -8,10 +8,12 @@ services:
     env_file:
       - .env
     volumes:
-      - assistant_api_log:/src/api/logs/
-      - ./nlp_models:/src/api:ro
+      - ./infra/nlp_models:/src/api/nlp_models:ro
     networks:
       - my_network
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
     depends_on:
       - assistant-redis
       - postgres
@@ -22,9 +24,8 @@ services:
     container_name: assistant_nginx
     restart: unless-stopped
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/nginx_config:/etc/nginx/conf.d:ro
-      - nginx_log:/var/log/nginx/
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/nginx_config:/etc/nginx/conf.d:ro
     depends_on:
       - assistant_api
     ports:
@@ -59,7 +60,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./.data/postgres:/data/postgres
-      - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro
+      - ./infra/dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro
     environment:
       POSTGRES_DB: ${DB_NAME:-movies_database}
       POSTGRES_USER: ${DB_USER:-app}
@@ -94,8 +95,6 @@ services:
       - my_network
 
 volumes:
-  assistant_api_log:
-  nginx_log:
   data:
 
 networks:

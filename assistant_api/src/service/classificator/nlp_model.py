@@ -13,7 +13,7 @@ from spacy.language import Language
 class AbstractNLP(ABC):
 
     @abstractmethod
-    def classify_question(self, question: str) -> tuple[str, str] | None:
+    def classify_question(self, text: str) -> tuple[str, str] | None:
         pass
 
     @abstractmethod
@@ -38,11 +38,10 @@ class NLP(AbstractNLP):
 
 
 @lru_cache
-def get_nlp(
-    ner: Language = spacy.load(NER_MODEL_PATH),
+def get_nlp() -> AbstractNLP:
+    ner: Language = spacy.load(NER_MODEL_PATH)
     classificator: QuestionClassificator = get_question_classificator(
         CLASSIFICATOR_MODEL_PATH,
         INTENTS_PATH,
-    ),
-) -> AbstractNLP:
+    )
     return NLP(ner, classificator)

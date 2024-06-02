@@ -1,16 +1,6 @@
 from functools import lru_cache
 
-import spacy
-from core.config import (
-    CLASSIFICATOR_MODEL_PATH,
-    INTENTS_PATH,
-    NER_MODEL_PATH,
-    NO_CONTENT,
-    NO_FILM_IN_BASE,
-    NO_INFO_FILM,
-    NO_INTENTS,
-    NOT_FOUND,
-)
+from core.config import NO_CONTENT, NO_FILM_IN_BASE, NO_INFO_FILM, NO_INTENTS, NOT_FOUND
 from core.logger import logger
 from db.abstract_cache_repository import AbstractCacheRepository
 from db.abstract_repository import AbstractRepository
@@ -20,8 +10,7 @@ from fastapi import Depends
 from models.enums import ConextTypeEnum, TagEnum
 from models.film import MainFilmInformation
 from models.user_question import UserQuestion
-from service.classificator.nlp_model import AbstractNLP
-from service.classificator.question_classificator import get_question_classificator
+from service.classificator.nlp_model import AbstractNLP, get_nlp
 
 
 class HandlerService:
@@ -52,6 +41,7 @@ class HandlerService:
                 film: MainFilmInformation = await self._db.search_film(title=search_param)
 
                 if not film:
+                    logger.info('Nо film in base. question: %s', question.text)
                     return NO_FILM_IN_BASE
                 match tag:
                     case TagEnum.rating:
@@ -130,5 +120,6 @@ class HandlerService:
 def get_handler_service(
     db: AbstractRepository = Depends(get_db_repository),
     cache: AbstractCacheRepository = Depends(get_cache_repository),
+    nlp: AbstractNLP = Depends(get_nlp),
 ) -> HandlerService:
-    return HandlerService(db=db, cache=cache)
+    return HandlerService(db=db, cache=cache, nlp=nlp)

@@ -24,13 +24,12 @@ class NeuralNet(nn.Module):
         out = self.relu(out)
         out = self.l3(out)
         out = self.relu(out)
-        out = self.l4(out)
         return self.l4(out)
 
 
 class QuestionClassificator:
     def __init__(self, model_file, data_file):
-        self.device = torch.device('cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         with open(data_file, 'r') as json_data:
             self.intents = json.load(json_data)
         data = torch.load(model_file)

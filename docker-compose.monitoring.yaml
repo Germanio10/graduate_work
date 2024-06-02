@@ -1,37 +1,38 @@
 version: "3.9"
 services:
-  logstash:
-    image: logstash:8.10.2
-    environment:
-      XPACK_MONITORING_ENABLED: "false"
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+  grafana:
+    image: grafana/grafana
     ports:
-      - "5044:5044/udp"
+      - 3000:3000
     volumes:
-      - ./logstash/logstash.conf:/config/logstash.conf:ro
-      - ./logstash/nginx:/etc/logstash/patterns/nginx
-    command: logstash -f /config/logstash.conf
-    networks:
-      - my_network
+      - ./infra/monitoring/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yaml
 
-  elasticsearch:
-    image: elasticsearch:8.10.2
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports:
-      - 9200:9200
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
       - my_network
 
-  kibana:
-    image: kibana:8.10.2
+  loki:
+    image: grafana/loki:2.7.4
     ports:
-      - "5601:5601"
+      - 3100:3100
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - my_network
+
+  promtail:
+    image:  grafana/promtail:2.7.4
+    container_name: promtail
+    volumes:
+      - ./infra/monitoring/config/promtail.yaml:/etc/promtail/docker-config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/docker-config.yaml
     depends_on:
-      - elasticsearch
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      - loki
     networks:
       - my_network
 
