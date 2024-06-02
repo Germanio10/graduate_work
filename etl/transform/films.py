@@ -1,7 +1,8 @@
 from dataclasses import asdict
 
 from common.transform_abstract import TransformAbstract
-from elasticsearch_models import ElasticsearchDataRow, ElasticsearchDataNormalized
+from elasticsearch_models import (ElasticsearchDataNormalized,
+                                  ElasticsearchDataRow)
 from extract.films import ExtractFilms
 
 

@@ -1,15 +1,14 @@
-from elasticsearch import Elasticsearch, helpers
-
 from backoff import backoff
 from common.load_mixin import LoadMixin
 from config import Settings
 from custom_context_manager import pg_conn_context
-from extract.persons import ExtractPersons
+from elasticsearch import Elasticsearch, helpers
 from extract.genres import ExtractGenres
-from storage import State, JsonFileStorage
+from extract.persons import ExtractPersons
+from storage import JsonFileStorage, State
 from transform.films import FilmsTransform
-from transform.persons import PersonsTransform
 from transform.genres import GenresTransform
+from transform.persons import PersonsTransform
 
 settings = Settings()
 

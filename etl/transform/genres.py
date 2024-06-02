@@ -1,6 +1,6 @@
 from common.transform_abstract import TransformAbstract
-from elasticsearch_models import GenreElasticsearchDataRow, \
-    GenreElasticsearchDataTransform
+from elasticsearch_models import (GenreElasticsearchDataRow,
+                                  GenreElasticsearchDataTransform)
 from extract.genres import ExtractGenres
 
 

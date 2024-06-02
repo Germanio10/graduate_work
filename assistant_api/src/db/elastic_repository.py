@@ -29,7 +29,7 @@ class ElasticRepository(AbstractRepository):
     async def films_by_actor(self, actor_name) -> list[str] | None:
         body = {
             "query": {"multi_match": {"query": actor_name, "fields": ["actors_names"]}},
-            "size": LOAD_SIZE,
+            "size": DEFAULT_ANSWER_SIZE,
             "_source": ["title"],
         }
         try:
@@ -42,7 +42,7 @@ class ElasticRepository(AbstractRepository):
     async def films_amount(self, director_name) -> tuple[int, list[str]] | None:
         body = {
             "query": {"multi_match": {"query": director_name, "fields": ["directors_names"]}},
-            "size": LOAD_SIZE,
+            "size": DEFAULT_ANSWER_SIZE,
             "_source": ["title"],
         }
         try:

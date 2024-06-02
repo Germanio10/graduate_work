@@ -2,7 +2,6 @@ from functools import lru_cache
 
 from async_fastapi_jwt_auth import AuthJWT
 from async_fastapi_jwt_auth.exceptions import JWTDecodeError, MissingTokenError
-from core.config import settings
 from fastapi import Depends, HTTPException, Request
 from models.user import User
 from starlette import status
@@ -20,7 +19,7 @@ class CheckAuth:
             return User(user_id=user_id, role_id=role_id)
 
         except MissingTokenError:
-            return
+            return None
 
         except JWTDecodeError:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Token is invalid")

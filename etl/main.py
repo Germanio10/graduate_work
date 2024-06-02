@@ -2,8 +2,7 @@ from time import sleep
 
 from config import Settings
 from create_index import CreateIndexes
-from load.general_load import FilmETL, PersonETL, GenreETL
-
+from load.general_load import FilmETL, GenreETL, PersonETL
 
 settings = Settings()
 

@@ -72,7 +72,7 @@ class HandlerService:
                         logger.info('Nо film. question: %s', question.text)
                         return messages.NO_INFO_FILM
 
-            elif type_ == ConextTypeEnum.actor:
+            if type_ == ConextTypeEnum.actor:
                 actor_films = await self._db.films_by_actor(actor_name=search_param)
                 actor_films = ', '.join(actor_films)
                 return answer.format(
@@ -80,7 +80,7 @@ class HandlerService:
                     actor_films=actor_films,
                 )
 
-            elif type_ == ConextTypeEnum.director:
+            if type_ == ConextTypeEnum.director:
                 count, films = await self._db.films_amount(director_name=search_param)
                 count_text = self.get_film_count_text(count)
                 films = ', '.join(films)
@@ -99,10 +99,9 @@ class HandlerService:
     def get_film_count_text(count: int) -> str:
         if count % 10 == 1 and count % 100 != 11:
             return f"{count} фильм"
-        elif 2 <= count % 10 <= 4 and (count % 100 < 10 or count % 100 >= 20):
+        if 2 <= count % 10 <= 4 and (count % 100 < 10 or count % 100 >= 20):
             return f"{count} фильма"
-        else:
-            return f"{count} фильмов"
+        return f"{count} фильмов"
 
     async def _get_context(self, text: str, user_id: str) -> tuple[str, str] | None:
         doc = self._ner(text)

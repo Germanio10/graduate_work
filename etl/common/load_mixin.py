@@ -1,12 +1,11 @@
 import abc
 
-from elasticsearch import Elasticsearch, helpers
-
 from backoff import backoff
 from common.transform_abstract import TransformAbstract
 from config import Settings
 from custom_context_manager import pg_conn_context
-from storage import State, JsonFileStorage
+from elasticsearch import Elasticsearch, helpers
+from storage import JsonFileStorage, State
 
 settings = Settings()
 

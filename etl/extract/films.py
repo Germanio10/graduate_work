@@ -1,7 +1,7 @@
 import datetime
 
 from backoff import backoff
-from common.extract_mixin import ExtractMixin, ExtractFilmAbstract
+from common.extract_mixin import ExtractFilmAbstract, ExtractMixin
 from config import Settings
 from custom_context_manager import pg_conn_context
 
@@ -71,7 +71,7 @@ class ExtractFilms(ExtractMixin, ExtractFilmAbstract):
         """
         if self.table == 'film_work':
             self.fw = [fw_id[0] for fw_id in self.object_with_updated_at]
-            return None
+            return
 
         query = (
             'SELECT fw.id, fw.updated_at '
@@ -84,7 +84,7 @@ class ExtractFilms(ExtractMixin, ExtractFilmAbstract):
         )
         self.pg_cursor.execute(query)
         self.fw = [fw_id[0] for fw_id in self.pg_cursor.fetchall()]
-        return None
+        return
 
     def postgres_merger(self) -> None:
         """
@@ -106,4 +106,4 @@ class ExtractFilms(ExtractMixin, ExtractFilmAbstract):
             self.data = self.pg_cursor.fetchall()
         else:
             self.data = []
-        return None
+        return

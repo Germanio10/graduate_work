@@ -1,13 +1,14 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from api.v1 import assistant
 from async_fastapi_jwt_auth import AuthJWT
 from core.config import JWTSettings, settings
-from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from redis.asyncio import Redis
+
+from api.v1 import assistant
+from db import elastic, redis
 
 
 @asynccontextmanager
