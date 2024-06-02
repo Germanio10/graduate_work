@@ -1,0 +1,19 @@
+filebeat.inputs:
+- type: filestream
+  enabled: true
+  paths:
+    - /var/log/nginx/*
+  fields:
+    application: "nginx"
+
+- type: filestream
+  id: assistant_api
+  enabled: true
+  paths:
+    - /src/api/logs/*
+  fields:
+    application: "assistant_api"
+
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5045"] 

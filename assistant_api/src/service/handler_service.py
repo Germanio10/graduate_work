@@ -1,7 +1,16 @@
 from functools import lru_cache
 
 import spacy
-from constants import messages
+from core.config import (
+    CLASSIFICATOR_MODEL_PATH,
+    INTENTS_PATH,
+    NER_MODEL_PATH,
+    NO_CONTENT,
+    NO_FILM_IN_BASE,
+    NO_INFO_FILM,
+    NO_INTENTS,
+    NOT_FOUND,
+)
 from core.logger import logger
 from db.abstract_cache_repository import AbstractCacheRepository
 from db.abstract_repository import AbstractRepository
@@ -11,33 +20,28 @@ from fastapi import Depends
 from models.enums import ConextTypeEnum, TagEnum
 from models.film import MainFilmInformation
 from models.user_question import UserQuestion
-from utils.classificator.question_classificator import get_question_classificator
-
-NER_MODEL_PATH = 'nlp_models/model-best'
-CLASSIFICATOR_MODEL_PATH = 'nlp_models/classificator.pth'
-INTENTS_PATH = 'nlp_models/current_intents.json'
+from service.classificator.nlp_model import AbstractNLP
+from service.classificator.question_classificator import get_question_classificator
 
 
 class HandlerService:
-    def __init__(self, db: AbstractRepository, cache: AbstractCacheRepository) -> None:
+    def __init__(
+        self, db: AbstractRepository, cache: AbstractCacheRepository, nlp: AbstractNLP
+    ) -> None:
         self._db = db
         self._cache = cache
-        self._ner = spacy.load(NER_MODEL_PATH)
-        self._question_classificator = get_question_classificator(
-            CLASSIFICATOR_MODEL_PATH,
-            INTENTS_PATH,
-        )
+        self._nlp = nlp
 
     async def execute(self, question: UserQuestion, user_id: str) -> str:
         context = await self._get_context(question.text, user_id)
         logger.debug('Context %s', context)
         if not context:
             logger.info('No content. question: %s', question.text)
-            return messages.NO_CONTENT
-        result = self._question_classificator.classify_question(question.text)
+            return NO_CONTENT
+        result = self._nlp.classify_question(question.text)
         if not result:
             logger.info('Nо intents. question: %s', question.text)
-            return messages.NO_INTENTS
+            return NO_INTENTS
 
         tag, answer = result
         logger.debug('Tag %s', tag)
@@ -48,7 +52,7 @@ class HandlerService:
                 film: MainFilmInformation = await self._db.search_film(title=search_param)
 
                 if not film:
-                    return messages.NO_FILM_IN_BASE
+                    return NO_FILM_IN_BASE
                 match tag:
                     case TagEnum.rating:
                         raiting = film.imdb_rating
@@ -70,7 +74,7 @@ class HandlerService:
                         )
                     case _:
                         logger.info('Nо film. question: %s', question.text)
-                        return messages.NO_INFO_FILM
+                        return NO_INFO_FILM
 
             elif type_ == ConextTypeEnum.actor:
                 actor_films = await self._db.films_by_actor(actor_name=search_param)
@@ -90,10 +94,10 @@ class HandlerService:
                     films=films,
                 )
             logger.info('Nо found. question: %s', question.text)
-            return messages.NOT_FOUND
+            return NOT_FOUND
         except KeyError:
             logger.info('Nо found. question: %s', question.text)
-            return messages.NOT_FOUND
+            return NOT_FOUND
 
     @staticmethod
     def get_film_count_text(count: int) -> str:
@@ -105,14 +109,14 @@ class HandlerService:
             return f"{count} фильмов"
 
     async def _get_context(self, text: str, user_id: str) -> tuple[str, str] | None:
-        doc = self._ner(text)
-        if not doc.ents:
+        result = self._nlp.get_entities(text)
+        if not result:
             result: str = await self._cache.get(user_id)
             if not result:
                 return None
             label, text = result.split(':')
         else:
-            label, text = doc.ents[0].label_, doc.ents[0].text
+            label, text = result[0], result[1]
 
         await self._cache.set(
             user_id,

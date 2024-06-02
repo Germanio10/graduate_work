@@ -4,9 +4,8 @@ from functools import lru_cache
 
 import torch
 import torch.nn as nn
-from utils.classificator.nltk_utils import bag_of_words, tokenize
-
-MATCH_PERCENT = 0.85
+from core.config import settings
+from service.classificator.nltk_utils import bag_of_words, tokenize
 
 
 class NeuralNet(nn.Module):
@@ -26,12 +25,12 @@ class NeuralNet(nn.Module):
         out = self.l3(out)
         out = self.relu(out)
         out = self.l4(out)
-        return out
+        return self.l4(out)
 
 
 class QuestionClassificator:
     def __init__(self, model_file, data_file):
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cpu')
         with open(data_file, 'r') as json_data:
             self.intents = json.load(json_data)
         data = torch.load(model_file)
@@ -55,7 +54,7 @@ class QuestionClassificator:
         tag = self.tags[predicted.item()]
         probs = torch.softmax(output, dim=1)
         prob = probs[0][predicted.item()]
-        if prob.item() > MATCH_PERCENT:
+        if prob.item() > settings.match_percent:
             for intent in self.intents['intents']:
                 if tag == intent['tag']:
                     return tag, random.choice(intent['responses'])

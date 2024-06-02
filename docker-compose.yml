@@ -7,6 +7,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      - assistant_api_log:/src/api/logs/
+      - ./nlp_models:/src/api:ro
     networks:
       - my_network
     depends_on:
@@ -91,6 +94,7 @@ services:
       - my_network
 
 volumes:
+  assistant_api_log:
   nginx_log:
   data:
 

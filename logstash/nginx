@@ -1,0 +1,1 @@
+NGINX_ACCESS %{IP:client_ip} %{USER:ident} %{USER:auth} \[%{HTTPDATE:timestamp}\] \"%{WORD:http_method} %{URIPATHPARAM:request} HTTP/%{NUMBER:http_version}\" %{NUMBER:response_code} %{NUMBER:bytes} \"%{DATA:referrer}\" \"%{DATA:user_agent}\" \"%{DATA:unknown}\" %{DATA:hash}
