@@ -1,17 +1,56 @@
 import sys
+from http import HTTPStatus
+
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QFrame
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
-from text_recognition import TextRecognizer
-from voice_recognition import VoiceRecognizer
+from audio_player import AudioPlayer
 from core.config import settings
+from fastapi import HTTPException
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QMainWindow,
+                             QPushButton, QVBoxLayout, QWidget)
+from recorder import Recorder
+from speechkit.exceptions import RequestError
+from text_to_speech import TextToSpeech
+from voice_to_text import VoiceToText
 
 SAMPLE_RATE = 16000
 
 
-class MainWindow(QMainWindow):
+class VoiceAssistant:
     def __init__(self):
+        self.voice_to_text = VoiceToText(settings.yandex_settings.token, settings.yandex_settings.catalog)
+        self.text_to_speech = TextToSpeech(settings.yandex_settings.token, settings.yandex_settings.catalog)
+        self.recorder = Recorder()
+        self.audio_player = AudioPlayer()
+
+    def process_voice(self, main_window):
+        main_window.request_label.setText("Вопрос: ")
+        main_window.response_label.setText("Ответ: ")
+
+        voice_data = self.recorder.record_audio(3, SAMPLE_RATE)
+        try:
+            text = self.voice_to_text.voice_recognize(voice_data, SAMPLE_RATE)
+        except RequestError:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='Ошибка с подключением к speechkit')
+        main_window.request_label.setText(f"Вопрос: {text}")
+
+        response = requests.post(
+            settings.yandex_settings.project_url,
+            json={'text': text}
+        )
+        search_service_answer = response.json().get('answer')
+        main_window.response_label.setText(f"Ответ: {search_service_answer}")
+
+        try:
+            data_for_voice = self.text_to_speech.generate_audio_data(search_service_answer)
+        except RequestError:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='Ошибка с подключением к speechkit')
+        self.audio_player.play_audio(audio_data=data_for_voice)
+
+
+class MainWindow(QMainWindow):
+    def __init__(self, assistant: VoiceAssistant):
         super().__init__()
 
         self.setWindowTitle("Голосовой ассистент")
@@ -23,7 +62,7 @@ class MainWindow(QMainWindow):
 
         self.button = QPushButton("Задайте вопрос")
         self.button.setFont(font)
-        self.button.clicked.connect(self.process_voice)
+        self.button.clicked.connect(lambda: assistant.process_voice(self))
         self.button.setStyleSheet("""
             QPushButton {
                 background-color: #4CAF50;
@@ -56,32 +95,12 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(container)
 
-    def process_voice(self):
-        self.request_label.setText("Вопрос: ")
-        self.response_label.setText("Ответ: ")
-
-        voice_recognizer = VoiceRecognizer(settings.yandex_settings.token, settings.yandex_settings.catalog)
-        text_recognizer = TextRecognizer(settings.yandex_settings.token, settings.yandex_settings.catalog)
-
-        voice_data = voice_recognizer.record_audio(3, SAMPLE_RATE)
-        text = voice_recognizer.audio_to_text(voice_data, SAMPLE_RATE)
-        self.request_label.setText(f"Вопрос: {text}")
-
-        response = requests.post(
-            settings.yandex_settings.project_url,
-            json={'text': text}
-        )
-        search_service_answer = response.json().get('answer')
-        self.response_label.setText(f"Ответ: {search_service_answer}")
-
-        data_for_voice = text_recognizer.generate_audio_data(search_service_answer)
-        text_recognizer.play_audio(audio_data=data_for_voice)
-
 
 def main():
     app = QApplication(sys.argv)
 
-    window = MainWindow()
+    assistant = VoiceAssistant()
+    window = MainWindow(assistant)
     window.show()
 
     sys.exit(app.exec_())

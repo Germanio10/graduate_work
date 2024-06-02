@@ -1,15 +1,15 @@
 import logging
 import sys
 
-import logging_loki
+logger = logging.getLogger("assistant_api")
+logger.setLevel(logging.INFO)
 
-loki = logging_loki.LokiHandler(
-    url='http://loki:3100/loki/api/v1/push',
-    tags={"application": "assistant_api"},
-)
 sh = logging.StreamHandler(sys.stdout)
 
-logger = logging.getLogger("assistant_api")
-logger.addHandler(loki)
+formatter = logging.Formatter(
+    "%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
+)
+
+sh.setFormatter(formatter)
+
 logger.addHandler(sh)
-logger.setLevel(logging.INFO)

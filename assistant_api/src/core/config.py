@@ -4,6 +4,15 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 
 CACHE_EXPIRE_IN_SECONDS = 30
+NER_MODEL_PATH = 'nlp_models/model-best'
+CLASSIFICATOR_MODEL_PATH = 'nlp_models/classificator.pth'
+INTENTS_PATH = 'nlp_models/current_intents.json'
+
+NO_CONTENT = 'Извините но не хватает контекста. Вы можете спросить о фильме в нашей коллекции режиссере актере'
+NO_FILM_IN_BASE = 'Извините но такого фильма у нас нет'
+NO_INTENTS = 'Извините но мы можем подскзать только о нашей коллеции фильмов'
+NO_INFO_FILM = 'Извините но у нас нет такой информации по данному фильму'
+NOT_FOUND = 'Прошу прощения но ничего не найдено. Вы можете спросить о фильме в нашей коллекции режиссере актере'
 
 
 class RedisSettings(BaseSettings):
@@ -28,6 +37,7 @@ class Settings(BaseSettings):
     redis_settings: RedisSettings = RedisSettings()
     elasticsearch: ElasticsearchSettings = ElasticsearchSettings()
     log_level: int | str = Field(validation_alias='LOG_LEVEL', default=logging.INFO)
+    match_percent: float = Field(validation_alias='MATCH_PERCENT', default=0.85)
 
 
 class JWTSettings(BaseModel):

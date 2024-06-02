@@ -12,8 +12,7 @@ class AbstractRepository(ABC):
     @abstractmethod
     def films_by_actor(self, title) -> list[str]:
         pass
-    
+
     @abstractmethod
     def films_amount(self, title) -> list[str]:
         pass
-    

@@ -4,7 +4,7 @@ import datetime
 from backoff import backoff
 from config import Settings
 from custom_context_manager import pg_conn_context
-from storage import State, JsonFileStorage
+from storage import JsonFileStorage, State
 
 settings = Settings()
 
